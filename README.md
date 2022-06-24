@@ -97,7 +97,7 @@ Now you're ready to start running dada2 on the cluster!
 
 This was taken directly from Fabian Wittmers, who recreated Phyloassigner in Python (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB)
 
-First you need to sign into your cluster. I can't help you with that bit, but if you are from UCSB and have an account with Pod, use the following command (replace "USERNAME" with whatever you're username is) and then type in your password when prompted. If you are not using campus wifi, you will have to use the campus VPN to be able to access the cluster.
+First you need to sign into your cluster. If you are from UCSB and have an account with Pod, use the following command (replace "USERNAME" with whatever you're username is) and then type in your password when prompted. If you are not using campus wifi, you will have to use the campus VPN to be able to access the cluster.
 
 ```{bash}
 ssh USERNAME@pod.cnsi.ucsb.edu
