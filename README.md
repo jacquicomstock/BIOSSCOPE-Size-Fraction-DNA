@@ -13,6 +13,8 @@ First you need to sign into your cluster. If you are from UCSB and have an accou
 ssh USERNAME@pod.cnsi.ucsb.edu
 ```
 
+If you are using a Mac, you can type the above command (and all following commands) into Terminal. If you are using a PC, it is easiest if you download MobaXterm (https://mobaxterm.mobatek.net/download.html) and treat that as your "terminal". From this you can have a "local" terminal window where you access your own personal computer and a terminal where you ssh into your cluster. For almost all commands you will want to be writing them in your terminal window connected to the cluster, but if you are uploading/downloading files from or onto your local computer, those commands should be run in your local terminal.
+
 ### 1) Install conda 
 This install conda section is copy/pasted directly from Fabian Wittmers (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB)
 
