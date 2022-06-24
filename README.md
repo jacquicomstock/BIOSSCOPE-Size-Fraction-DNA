@@ -6,6 +6,13 @@ Processing of all raw fastq files was done on a cluster through dada2, which was
 Below is described how I installed all programs to run the above scripts. 
 #### This is written step-by-step for absolute beginners.
 
+### 0) Access your cluster
+First you need to sign into your cluster. If you are from UCSB and have an account with Pod, use the following command (replace "USERNAME" with whatever you're username is) and then type in your password when prompted. If you are not using campus wifi, you will have to use the campus VPN to be able to access the cluster.
+
+```{bash}
+ssh USERNAME@pod.cnsi.ucsb.edu
+```
+
 ### 1) Install conda 
 This install conda section is copy/pasted directly from Fabian Wittmers (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB)
 
@@ -97,13 +104,7 @@ Now you're ready to start running dada2 on the cluster!
 
 This was taken directly from Fabian Wittmers, who recreated Phyloassigner in Python (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB)
 
-First you need to sign into your cluster. If you are from UCSB and have an account with Pod, use the following command (replace "USERNAME" with whatever you're username is) and then type in your password when prompted. If you are not using campus wifi, you will have to use the campus VPN to be able to access the cluster.
-
-```{bash}
-ssh USERNAME@pod.cnsi.ucsb.edu
-```
-
-Next, you will need to download Phyloassigner (and accompanying databases) from Fabian Wittmer's github (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB). You can download everything as a single zip file by clicking the green "code" button and clicking download. 
+You will need to download Phyloassigner (and accompanying databases) from Fabian Wittmer's github (https://github.com/BIOS-SCOPE/PhyloAssigner_python_UCSB). You can download everything as a single zip file by clicking the green "code" button and clicking download. 
 Once you have downloaded Phyloassigner you can upload that file from your local computer to your cluster. Open up a new local terminal window (One that's NOT connected to the cluster) and type the following command:
 
 ```{bash}
