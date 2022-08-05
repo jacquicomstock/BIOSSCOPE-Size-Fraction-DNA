@@ -1,0 +1,27 @@
+#create shell script to run phyloassigner
+vi phylo_plastid.sh
+
+#paste the following into the created shell script
+python pythonassigner_v0.9.py \
+    --out_dir plastid_output/ \
+    --ref_align databases/Cyanos_and_Plastid_refDB/ref.aln \
+    --ref_tree databases/Cyanos_and_Plastid_refDB/ref_tree.txt \
+    --query_seqs plastid.fasta \
+    --mapping databases/Cyanos_and_Plastid_refDB/edge.mapping \
+    --threads 32 \
+    --placer pplacer
+    
+#for plastid data there are too many ASVs (1500) to run upfront on the cluster, need to submit job to slurm
+#this is the code to submit a batch job
+sbatch \
+	--job-name=plastid_phyloassigner \
+	--nodes=1 \
+	--tasks-per-node=32 \
+	--cpus-per-task=1 \
+	--mem=60G \
+	--time=1:00:00 \
+	--output=plastid_out \
+	--error=plastid_err \
+	--wrap="bash phylo_plastid.sh"
+  
+  #can do the above steps for all taxa types I want further classification with through Phyloassigner
