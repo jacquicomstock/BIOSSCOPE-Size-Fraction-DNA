@@ -23,10 +23,10 @@ sbatch \
 	--tasks-per-node=32 \
 	--cpus-per-task=1 \
 	--mem=60G \
-	--time=1:00:00 \
+	--time=00:30:00 \
 	--output=plastid_out \
 	--error=plastid_err \
-	--wrap="bash phylo_plastid.sh"
+	--wrap="bash BIOSFrac_plastid.sh"
   
 #can do the above steps for all taxa types I want further classification with through Phyloassigner
   
