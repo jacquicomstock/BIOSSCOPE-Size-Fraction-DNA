@@ -33,3 +33,6 @@ sbatch \
 #move files back
 mv databases/ 
 mv pythonassigner_v0.9.py 
+
+#move phyloassigner export files to local community
+scp -r carlsonlab@pod.cnsi.ucsb.edu:/home/carlsonlab/PhyloAssigner_python_UCSB-main/plastid_output/ /home/Mobaxterm/Desktop/
