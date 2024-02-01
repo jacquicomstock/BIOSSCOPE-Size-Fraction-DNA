@@ -1,1 +1,14 @@
+#Run Alpha diveristy metrics on rarefied reads
+t.all.counts <- ASV_rar
+ASV = otu_table(t.all.counts, taxa_are_rows = TRUE)
+all.alpha <- as.data.frame(estimate_richness(ASV))
+all.alpha.trim <- all.alpha[4:nrow(all.alpha),]
+write.csv(all.alpha.trim, "AllAlpha.csv")
+
+#Run alpha diversity metrics on rarefied reads with cyanobadteria removed
+nocyano <- as.data.frame(read.csv("EnvASV.csv", row.names = 1))
+nocyano.counts <- ASV_rar
+ASV = otu_table(nocyano.counts, taxa_are_rows = TRUE)
+nocyano.alpha <- as.data.frame(estimate_richness(ASV))
+write.csv(nocyano.alpha, "NoCyanoAlpha.csv")
 
