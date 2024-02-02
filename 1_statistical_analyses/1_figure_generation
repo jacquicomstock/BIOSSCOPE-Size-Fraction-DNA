@@ -1,1 +1,247 @@
+#load packages
+library(ggplot2)
+library(dplyr)
+library(vegan)
+library(scales)
+library(wesanderson)
+library(colorspace)
+library(RColorBrewer)
+library(devEMF)
 
+
+#Load dataset
+mydata <- as.data.frame(read.csv("BIOSSCOPE_SizeFrac_EnvASV_noBLANKv3.csv", row.names = 1))
+mydata$Fraction_size_um <- as.character(mydata$Fraction_size_um)
+FL <- as.data.frame(filter(mydata, mydata$Fraction_size_um < 0.5))
+FL.asin <- as.matrix(asin(sqrt(FL[,20:ncol(FL)]/100)))
+all.asin <- as.matrix(asin(sqrt(mydata[,20:ncol(mydata)]/100)))
+
+nocyano <- as.data.frame(read.csv("NoCyano_BIOSSCOPE_SizeFrac_EnvASV.csv", row.names = 1))
+nocyano$Fraction_size_um <- as.character(nocyano$Fraction_size_um)
+nocyano.asin <- as.matrix(asin(sqrt(nocyano[,18:ncol(nocyano)]/100)))
+
+
+###########Overall NMDS ordinations
+ALLnmds <- metaMDS(all.asin, distance = "bray")
+ALL.scores = as.data.frame(scores(ALLnmds))
+
+FLnmds <- metaMDS(FL.asin, distance = "bray")
+FL.scores = as.data.frame(scores(FLnmds))
+
+nocyanoNMDS <- metaMDS(nocyano.asin, distance = "bray")
+nocyano.scores = as.data.frame(scores(nocyanoNMDS))
+
+  #plot with depth as color but with different colors 
+pal <- brewer.pal(n=8, name = 'RdYlBu')
+pal1 <- pal[-2]
+
+ggplot(data = ALL.scores, 
+       mapping = aes(x=NMDS2, y=NMDS1))+ 
+        geom_point(size=5, alpha=0.8, aes(shape=mydata$Fraction_size_um, color = mydata$depth.bin.fine, stroke= 2))+ 
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_color_manual(values = pal1)+
+        labs(color='Depth (m)')+
+        labs(shape='Fraction (µm)')+
+        scale_shape_manual(values=c(16, 1,6,17))+
+        scale_y_reverse()
+
+#plot with no Cyanos in the ordination 
+pal <- brewer.pal(n=8, name = 'RdYlBu')
+pal1 <- pal[-2]
+ggplot(data = nocyano.scores, 
+       mapping = aes(x=NMDS2, y=NMDS1))+ 
+        geom_point(size=5, alpha=0.8, aes(shape=nocyano$Fraction_size_um, color = nocyano$depth.bin.fine, stroke= 2))+ 
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_color_manual(values = pal1)+
+        labs(color='Depth (m)')+
+        labs(shape='Fraction (µm)')+
+        scale_shape_manual(values=c(16, 1,6,17))+
+        scale_y_reverse()
+
+
+#plot with no Cyanos in the ordination, by cruise (Figure 1b)
+ggplot(data = nocyano.scores, 
+       mapping = aes(x=NMDS2, y=NMDS1))+ 
+        geom_point(size=4, alpha=0.7, aes(shape=nocyano$Fraction_size_um, color = nocyano$Cruise, stroke= 2))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1,6,17))+
+        labs(color='Sample Time')+
+        labs(shape='Fraction (µm)')+
+        scale_y_reverse()
+
+
+
+#########Figures for alpha diversity
+frac.order <- c("0.2", "1.2", "5","20")
+depth.order <- c("UE", "DCM", "MESO")
+pal2 <- c("goldenrod","deepskyblue4","firebrick1")
+
+#Main Figure alpha diversity
+emf(file = "C:/Users/jacqu/Desktop/BIOSSCOPE_SizeFrac_dada2_output/Manuscript/Figure2A.emf", emfPlus = T, width=10, height=7)
+pal3 <- c("deepskyblue","deepskyblue4","firebrick4","firebrick2")
+ggplot(data = nocyano, 
+       mapping = aes(x=factor(nocyano$depth.bin, level=depth.order), y=nocyano$Chao1))+ 
+        geom_jitter(alpha= 0.7, aes(color=nocyano$Cruise), size=3.5, width=0.2) +
+        geom_boxplot(outlier.shape = NA, width=0.1, alpha=0.7, lwd = 1.5)+
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        #scale_color_manual(values = pal3)+
+        xlab("")+
+        ylab("Chao1 Diversity")+
+        labs(color='Cruise')
+
+
+ggplot(data = nocyano, 
+       mapping = aes(x=factor(nocyano$depth.bin, level=depth.order), y=nocyano$Shannon))+ 
+        geom_jitter(alpha= 0.7, aes(color=nocyano$Cruise), size=3.5, width=0.15) +
+        geom_boxplot(outlier.shape = NA, width=0.1, alpha=0.7, lwd = 1.5)+
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        xlab("")+
+        ylab("Shannon Diversity")+
+        labs(color='Cruise')
+
+
+#Supplementary figure for alpha diversity
+pal3 <- c("deepskyblue","deepskyblue4","firebrick4","firebrick2")
+ggplot(data = mydata, 
+       mapping = aes(x=factor(mydata$depth.bin, level=depth.order), y=mydata$Chao1))+ 
+        geom_jitter(alpha= 0.7, aes(color=mydata$Cruise), size=3.5, width=0.2) +
+        geom_boxplot(outlier.shape = NA, width=0.1, alpha=0.7, lwd = 1.5)+
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        xlab("")+
+        ylab("Chao1 Diversity")+
+        labs(color='Cruise')
+
+ggplot(data = mydata, 
+       mapping = aes(x=factor(mydata$depth.bin, level=depth.order), y=mydata$Shannon))+ 
+        geom_jitter(alpha= 0.7, aes(color=mydata$Cruise), size=3.5, width=0.15) +
+        geom_boxplot(outlier.shape = NA, width=0.1, alpha=0.7, lwd = 1.5)+
+        theme_classic(base_size = 28)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        xlab("")+
+        ylab("Shannon Diversity")+
+        labs(color='Cruise')
+
+
+
+
+#### Cyanobacteria abundance scatterplots
+cyano<- read.csv("C:/Users/jacqu/Desktop/BIOSSCOPE_SizeFrac_dada2_output/BIOSSCOPE_SizeFrac_EnvASV_NMDS_noBLANKv4.csv", header=TRUE,sep=",",row.names=1)
+
+cyano.trim <- cyano[,1:200]
+cyano.trim$Fraction_size_um <- as.character(cyano.trim$Fraction_size_um)
+
+pal <- c("#98C7FF","#3779DE","#FFAD88","#D44554")
+frac.order <- c("0.3-1.2", "1.2-6", ">20")
+
+#ASV 1
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_marinus_1, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 1")+
+        ylab("Depth (m)")
+
+
+#ASV 5
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Synechococcus.CC9902_NA_5, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 5")+
+        ylab("Depth (m)")
+
+#ASV 13
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_NA_13, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 13")+
+        ylab("Depth (m)")
+
+#ASV 21
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_marinus_21, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 21")+
+        ylab("Depth (m)")
+
+
+#ASV 24
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_marinus_24, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 24")+
+        ylab("Depth (m)")
+
+#ASV 77
+ggplot(data = cyano.trim, 
+       mapping = aes(x=Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_NA_77, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 77")+
+        ylab("Depth (m)")
+
+
+#ASV 125
+ggplot(data = cyano.trim, 
+       mapping = aes(x=cyano.trim$Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_marinus_125, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 125")+
+        ylab("Depth (m)")
+
+#ASV 126
+ggplot(data = cyano.trim, 
+       mapping = aes(x=cyano.trim$Bacteria_Cyanobacteria_Cyanobacteriia_Synechococcales_Cyanobiaceae_Prochlorococcus.MIT9313_marinus_126, y=Depth_m))+ 
+        geom_point(size=4, alpha=0.8, aes(shape=Fraction_size_um, color = Fraction_size_um,  stroke= 3))+ 
+        theme_classic(base_size = 28, base_line_size = 1.7)+
+        theme(axis.text = element_text(size=28, color="black", face="bold"), axis.title = element_text(size=28, color="black", face="bold"), legend.text = element_text(size=28, color="black", face="bold"), legend.title = element_text(size=28, color="black", face="bold"))+
+        scale_shape_manual(values=c(16, 1, 17, 6)) +
+        scale_y_reverse() +
+        scale_x_continuous(position="top")+
+        scale_color_manual(values = pal) +
+        xlab("ASV 126")+
+        ylab("Depth (m)")
